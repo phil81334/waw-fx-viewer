@@ -4,7 +4,7 @@
 
 Browse World at War's Modtools effects by eye, play a visual preview and copy the filename. Made by [phil81334](https://github.com/phil81334). Built with JavaScript, Rust, Vite and Tauri, with a native Direct3D 9 viewport.
 
-![WaW FX Viewer](images/waw-fx-viewer.png)
+![WaW FX Viewer](images/waw-fx-viewer-v0.1.0.png)
 
 ## Download and run
 
