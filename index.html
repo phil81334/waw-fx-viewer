@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WaW FX Viewer</title>
+    <link rel="icon" href="/src-tauri/icons/icon.png" />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <main id="app" hidden>
+      <div class="tab-bar">
+        <span class="tab">Effects</span>
+        <span id="app-version">WaW FX Viewer | 0.1.0</span>
+      </div>
+      <section class="panel viewer">
+        <div class="search-row">
+          <label for="search">Search</label>
+          <input id="search" type="search" placeholder="Find an effect by filename…" autocomplete="off" spellcheck="false" />
+          <button id="reset-filters">Clear filters</button>
+          <button id="rescan">Rescan</button>
+          <button id="cache-button">Cache…</button>
+        </div>
+        <div class="filters">
+          <label for="group">Folder</label>
+          <select id="group"><option value="">All folders</option></select>
+          <label for="thumbnail-background">Thumbnails</label>
+          <select id="thumbnail-background" title="Thumbnail background">
+            <option value="dark">Dark</option>
+            <option value="grey">Grey</option>
+            <option value="light">Light</option>
+            <option value="checkerboard">Checkerboard</option>
+          </select>
+          <span id="count">Reading effect catalogue…</span>
+        </div>
+        <div class="workspace">
+          <section id="grid-scroll" aria-label="Effect catalogue" tabindex="0" data-background="dark">
+            <div id="grid"></div>
+            <p id="empty-grid">Reading the Modtools effects…</p>
+          </section>
+          <section class="preview-panel" aria-label="Selected effect">
+            <div class="filename-row">
+              <strong id="filename">Effect preview</strong>
+              <button id="copy-name" disabled>Copy name</button>
+            </div>
+            <p id="effect-info" class="hint">Select a thumbnail to play an effect.</p>
+            <div id="viewport" tabindex="0" aria-label="Effect preview. Drag to pan; wheel to zoom." data-background="dark">
+              <p id="preview-empty">Select an effect to preview it.</p>
+            </div>
+            <div class="playback-tools">
+              <button id="play" disabled>Play</button>
+              <button id="restart" disabled>Restart</button>
+              <span id="playback-time">0.00 / 0.00 s</span>
+              <label for="speed">Speed</label>
+              <select id="speed" disabled>
+                <option value="0.25">0.25×</option>
+                <option value="0.5">0.5×</option>
+                <option value="1" selected>1×</option>
+                <option value="2">2×</option>
+              </select>
+              <label><input id="loop" type="checkbox" disabled /> Loop</label>
+            </div>
+            <div class="preview-tools">
+              <button id="reset-view" disabled>Reset view</button>
+              <label id="plane-control" hidden><input id="plane" type="checkbox" checked disabled /> Light receiver</label>
+              <label for="background">Background</label>
+              <select id="background" title="Viewport background">
+                <option value="dark">Dark</option>
+                <option value="grey">Grey</option>
+                <option value="light">Light</option>
+                <option value="checkerboard">Checkerboard</option>
+              </select>
+              <span>Drag to pan · wheel to zoom</span>
+            </div>
+            <p class="hint preview-limit">Visual previews only; no sound or in-game environment. Camera fitted automatically.</p>
+          </section>
+        </div>
+        <details id="catalogue-details">
+          <summary id="statistics-summary">Catalogue information</summary>
+          <p id="statistics" class="hint">No catalogue loaded.</p>
+          <pre id="catalogue-errors" hidden></pre>
+        </details>
+        <p id="message" role="status"></p>
+      </section>
+    </main>
+    <footer id="footer" hidden>
+      <span id="status" role="status">Ready</span>
+      <div class="footer-tools">
+        <span id="environment"></span>
+        <button id="about" class="icon-button" aria-label="About WaW FX Viewer" title="About">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 11v6" />
+            <circle cx="12" cy="7.5" r="0.9" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </footer>
+    <dialog id="about-dialog" aria-labelledby="about-title">
+      <div class="dialog-title" id="about-title">About WaW FX Viewer</div>
+      <div class="dialog-body">
+        <p>An unofficial tool made for the World at War modding community.</p>
+        <p>Browse the installed Modtools effects by eye and play supported visual previews. Find a filename, pause or restart playback, and adjust the playback speed.</p>
+        <p>Choose separate dark, grey, light or checkerboard backgrounds for thumbnails and the viewport. The app automatically chooses a view and distance, keeping the authored effect settings. Some large effects use a labelled close-up that shows only part of the effect. Effects with lights can show a simple light receiver. Sounds, editing, exports and the in-game environment are not included. Unsupported or incomplete effects are left out; Catalogue information shows the counts. Game files are never modified.</p>
+        <p>Independent of Treyarch, Activision and UGX. Built with JavaScript, Vite, Rust and Tauri. Open source under GPL-3.0; see ATTRIBUTION.md for credits.</p>
+        <p class="credit">Created by <strong>phil81334</strong>.</p>
+        <label for="repo-url">Source, instructions and releases</label>
+        <input id="repo-url" class="repo-url" value="https://github.com/phil81334/waw-fx-viewer" readonly />
+        <div class="dialog-actions"><button id="close-about">Close</button></div>
+      </div>
+    </dialog>
+    <dialog id="cache-dialog" aria-labelledby="cache-title">
+      <div class="dialog-title" id="cache-title">Preview cache</div>
+      <div class="dialog-body">
+        <p>Effect information and preview images are cached here. Clearing this cache does not change your game files.</p>
+        <input id="cache-path" class="repo-url" readonly aria-label="Cache location" />
+        <p id="cache-size" class="hint"></p>
+        <p class="hint">Thumbnails are prepared as you browse. Rescan checks the installed effects again.</p>
+        <div class="dialog-actions">
+          <button id="clear-cache">Clear cache</button>
+          <button id="close-cache">Close</button>
+        </div>
+      </div>
+    </dialog>
+    <dialog id="startup-error" aria-labelledby="startup-title">
+      <div class="dialog-title" id="startup-title">World at War folder required</div>
+      <div class="dialog-body">
+        <p id="startup-message"></p>
+        <div class="dialog-actions"><button id="quit">Close</button></div>
+      </div>
+    </dialog>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
